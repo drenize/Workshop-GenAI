@@ -24,7 +24,7 @@ llm = AzureChatOpenAI(
     azure_deployment=azure_deployment,
     api_key=azure_key,
     azure_endpoint=azure_endpoint,
-    api_version="2024-06-01",
+    api_version=azure_version,
 )
 
 # Set up memory
