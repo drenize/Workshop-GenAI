@@ -5,6 +5,7 @@ from langchain.prompts import ChatPromptTemplate
 from langchain.memory.chat_message_histories.in_memory import ChatMessageHistory
 from langchain_core.messages.ai import AIMessage
 from langchain_openai.chat_models import AzureChatOpenAI
+from langchain_core.runnables.history import RunnableWithMessageHistory
 
 
 from dotenv import load_dotenv
@@ -48,6 +49,12 @@ with the history
 """)
 
 chain = chat_prompt | llm
+chain_memory = RunnableWithMessageHistory(
+    chain,
+    get_session_history=lambda: st.session_state.memory.chat_memory,
+    input_messages_key="input",
+    history_messages_key="chat_history",
+)
 
 # Render current messages from StreamlitChatMessageHistory
 for msg in st.session_state.memory.buffer_as_messages:
@@ -56,7 +63,7 @@ for msg in st.session_state.memory.buffer_as_messages:
 if prompt := st.chat_input():
     st.chat_message("human").write(prompt)
     # Note: new messages are saved to history automatically by Langchain during run
-    response = chain.invoke({
+    response = chain_memory.invoke({
         "input": prompt,
         "chat_history": st.session_state.memory.buffer_as_messages,
     })
